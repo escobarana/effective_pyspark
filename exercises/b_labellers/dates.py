@@ -28,7 +28,7 @@ def label_weekend(
     # return frame.withColumn(new_colname, date_format(frame[colname], 'EEE').isin(["Sat", "Sun"]).cast("boolean"))
     return frame.withColumn(new_colname, dayofweek(frame[colname]).isin(1, 7))
     
-holiday_udf = udf(lambda x: is_belgian_holiday(x), BooleanType())
+holiday_udf = udf(is_belgian_holiday, BooleanType())
 
 def label_holidays(
     frame: DataFrame,
@@ -47,6 +47,7 @@ def label_holidays2(
 ) -> DataFrame:
     """Adds a column indicating whether or not the column `colname`
     is a holiday. An alternative implementation."""
+    
     pass
 
 
