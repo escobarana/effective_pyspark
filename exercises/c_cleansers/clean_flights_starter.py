@@ -18,6 +18,7 @@
 from pathlib import Path
 
 from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql.functions import to_timestamp, when, col, concat, lit
 
 
 def read_data(path: Path):
@@ -38,7 +39,15 @@ def read_data(path: Path):
 
 
 def clean(frame: DataFrame) -> DataFrame:
-    return frame
+    df = (frame.select(
+                    *[when(col(c)=="", None).otherwise(col(c)).alias(c) for c in frame.columns],
+                     concat(frame.FL_DATE, lit(" "), frame.CRS_DEP_TIME).alias("DEP_DATETIME")
+                     )
+               .withColumn("DEP_DATETIME", to_timestamp("DEP_DATETIME"))
+               .drop("YEAR", "MONTH", "DAY_OF_MONTH", "DAY_OF_WEEK", "FL_DATE", "CRS_DEP_TIME")
+         )
+    df.show()
+    return df
 
 
 if __name__ == "__main__":
