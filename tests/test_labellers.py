@@ -13,7 +13,7 @@ from pyspark.sql.types import (
 from exercises.b_labellers.dates import (
     label_weekend,
     is_belgian_holiday,
-    label_holidays,
+    label_holidays2 as label_holidays,
 )
 from tests.comparers import assert_frames_functionally_equivalent
 
