@@ -2,7 +2,8 @@ import datetime
 import pandas as pd
 
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import date_format, dayofweek
+from pyspark.sql.types import BooleanType
+from pyspark.sql.functions import date_format, dayofweek, udf
 
 import holidays
 
@@ -27,6 +28,7 @@ def label_weekend(
     # return frame.withColumn(new_colname, date_format(frame[colname], 'EEE').isin(["Sat", "Sun"]).cast("boolean"))
     return frame.withColumn(new_colname, dayofweek(frame[colname]).isin(1, 7))
     
+holiday_udf = udf(lambda x: is_belgian_holiday(x), BooleanType())
 
 def label_holidays(
     frame: DataFrame,
@@ -35,7 +37,7 @@ def label_holidays(
 ) -> DataFrame:
     """Adds a column indicating whether or not the column `colname`
     is a holiday."""
-    return frame.withColumn(new_colname, is_belgian_holiday(frame[colname]))
+    return frame.withColumn(new_colname, holiday_udf(frame[colname]))
 
 
 def label_holidays2(
