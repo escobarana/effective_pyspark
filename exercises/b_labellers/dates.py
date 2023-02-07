@@ -1,10 +1,22 @@
 import datetime
+import pandas as pd
 
 from pyspark.sql import DataFrame
+from pyspark.sql.functions import date_format, dayofweek
+
+import holidays
 
 
 def is_belgian_holiday(date: datetime.date) -> bool:
-    pass
+    holiday_list = []
+    res = False
+    for holiday in holidays.Belgian(years=[2019, 2020, 2021, 2022]).items():
+        holiday_list.append(holiday)
+
+    if date in holiday_list:
+        res = True
+    
+    return True
 
 
 def label_weekend(
@@ -12,8 +24,9 @@ def label_weekend(
 ) -> DataFrame:
     """Adds a column indicating whether or not the attribute `colname`
     in the corresponding row is a weekend day."""
-    pass
-
+    # return frame.withColumn(new_colname, date_format(frame[colname], 'EEE').isin(["Sat", "Sun"]).cast("boolean"))
+    return frame.withColumn(new_colname, dayofweek(frame[colname]).isin(1, 7))
+    
 
 def label_holidays(
     frame: DataFrame,
@@ -22,7 +35,7 @@ def label_holidays(
 ) -> DataFrame:
     """Adds a column indicating whether or not the column `colname`
     is a holiday."""
-    pass
+    return frame.withColumn(new_colname, is_belgian_holiday(frame[colname]))
 
 
 def label_holidays2(
